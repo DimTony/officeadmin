@@ -1,0 +1,86 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
+
+@font-face {
+  font-family: "Segoe UI";
+  src: url("/fonts/Segoe UI.woff") format("woff");
+  /* font-weight: normal; */
+  font-style: normal;
+}
+
+textarea:hover,
+input:hover,
+textarea:active,
+input:active,
+textarea:focus,
+input:focus,
+button:focus,
+button:active,
+button:hover,
+label:focus,
+.btn:active,
+.btn.active {
+  outline: 0px !important;
+  -webkit-appearance: none;
+  box-shadow: none !important;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  color: #333;
+  font-family: "Segoe UI", "Outfit", "Roboto", sans-serif;
+  line-height: 1.5;
+  overflow: hidden;
+  position: relative;
+  background: "linear-gradient(120deg,#f0c9f8,#f7eff6)";
+}
+
+#root {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+}
+
+.table-header {
+  padding: 12px 15px;
+  font-weight: bold;
+  text-align: left;
+  color: #475467;
+  background: #f7f8fa;
+  border-bottom: 2px solid #ddd;
+}
+
+.table-cell {
+  padding: 12px 15px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #475467;
+  line-height: 20px;
+  border-bottom: 1px solid #ddd;
+  word-wrap: break-word; /* Ensure text wraps if too long */
+}
+
+table {
+  width: 100%;
+  table-layout: auto; /* Allow columns to adjust size based on content */
+  border-collapse: collapse;
+}
+
+tr {
+  display: table-row;
+}
+
+@media (max-width: 768px) {
+  table {
+    display: block;
+    overflow-x: auto; /* Allow horizontal scrolling on small screens */
+  }
+
+  .table-cell,
+  .table-header {
+    padding: 8px;
+    font-size: 12px;
+  }
+}
