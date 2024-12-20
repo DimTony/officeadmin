@@ -94,7 +94,7 @@ const AdminDashboard = () => {
   // };
 
   useEffect(() => {
-    const socketURL = import.meta.env.VITE_BASE_URL;
+    const socketURL = "https://officebackend-15b3.onrender.com";
     const newSocket = io(socketURL);
 
     newSocket.on("connect", () => {
