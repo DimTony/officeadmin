@@ -14,6 +14,10 @@ export const eventConfig = {
       nextStep: "2",
       message: "",
     },
+    phone: {
+      nextStep: "2",
+      phone: "",
+    },
     cancel: {
       nextStep: "1",
       message: "Invalid password. Please try again.",
