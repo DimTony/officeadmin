@@ -776,6 +776,7 @@ const AdminDashboard = () => {
       // pt="80px"
       px={4}
       pb={4}
+      mb="3rem"
       display="flex"
       flexDirection="column"
       height="100vh" // Make the main container take the full height
