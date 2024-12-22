@@ -1,6 +1,6 @@
 export const eventConfig = {
   "email-verification": {
-    continue: {
+    email: {
       nextStep: "1",
       message: "",
     },
