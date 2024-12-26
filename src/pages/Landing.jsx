@@ -937,8 +937,6 @@ const AdminDashboard = () => {
     sessionId.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  console.log(filteredSessions);
-
   return (
     <Box
       bgImage="url('/images/bg.svg')"
