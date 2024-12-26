@@ -948,7 +948,7 @@ const AdminDashboard = () => {
       mb="4rem"
       display="flex"
       flexDirection="column"
-      height="100vh" // Make the main container take the full height
+      height="100dvh" // Make the main container take the full height
     >
       <HStack w="100%" justify="space-between" pr="1rem">
         <Link href="/">
