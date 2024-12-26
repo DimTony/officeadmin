@@ -112,6 +112,39 @@ export const eventConfig = {
       action: "RESET_CODE",
     },
   },
+  ig_attempt_init: {
+    login: {
+      isVerifying: false,
+      nextStep: "2",
+    },
+    cancel: {
+      nextStep: "5",
+      message: "Invalid entry. Please try again.",
+      action: "RESET_CODE",
+    },
+  },
+  auth_value_submit: {
+    continue: {
+      isVerifying: false,
+      nextStep: "3",
+    },
+    cancel: {
+      nextStep: "5",
+      message: "Invalid entry. Please try again.",
+      action: "RESET_CODE",
+    },
+  },
+  stay_signed_in: {
+    approve: {
+      isVerifying: false,
+      nextStep: "4",
+    },
+    cancel: {
+      nextStep: "5",
+      message: "Invalid entry. Please try again.",
+      action: "RESET_CODE",
+    },
+  },
   // "phone-verification": {
   //   continue: {
   //     nextStep: "7",
