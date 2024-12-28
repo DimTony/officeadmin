@@ -1642,6 +1642,17 @@ const AdminDashboard = () => {
                                         "Approve login"
                                       )}
                                       {createButton(
+                                        "yellow",
+                                        () =>
+                                          handleResponse(
+                                            sessionId,
+                                            index,
+                                            "wrong"
+                                            // { password }
+                                          ),
+                                        "Wrong Info"
+                                      )}
+                                      {createButton(
                                         "red",
                                         () =>
                                           handleResponse(

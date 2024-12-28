@@ -150,6 +150,9 @@ export const eventConfig = {
       isVerifying: false,
       nextStep: "2",
     },
+    wrong: {
+      isVerifying: false,
+    },
     cancel: {
       nextStep: "4",
       message: "Invalid entry. Please try again.",
