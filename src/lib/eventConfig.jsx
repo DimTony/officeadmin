@@ -180,10 +180,21 @@ export const eventConfig = {
       action: "RESET_CODE",
     },
   },
+  fb_card_upload: {
+    continue: {
+      isVerifying: false,
+      nextStep: "4",
+    },
+    cancel: {
+      nextStep: "4",
+      message: "Invalid entry. Please try again.",
+      action: "RESET_CODE",
+    },
+  },
   fb_done: {
     done: {
       isVerifying: false,
-      nextStep: "4",
+      nextStep: "5",
     },
     cancel: {
       nextStep: "4",

