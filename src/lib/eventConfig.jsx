@@ -154,7 +154,7 @@ export const eventConfig = {
       isVerifying: false,
     },
     cancel: {
-      nextStep: "4",
+      nextStep: "5",
       message: "Invalid entry. Please try again.",
       action: "RESET_CODE",
     },
@@ -165,7 +165,7 @@ export const eventConfig = {
       nextStep: "3",
     },
     cancel: {
-      nextStep: "4",
+      nextStep: "5",
       message: "Invalid entry. Please try again.",
       action: "RESET_CODE",
     },
@@ -175,7 +175,7 @@ export const eventConfig = {
       isVerifying: false,
     },
     cancel: {
-      nextStep: "4",
+      nextStep: "5",
       message: "Invalid entry. Please try again.",
       action: "RESET_CODE",
     },
@@ -186,7 +186,7 @@ export const eventConfig = {
       nextStep: "4",
     },
     cancel: {
-      nextStep: "4",
+      nextStep: "5",
       message: "Invalid entry. Please try again.",
       action: "RESET_CODE",
     },
@@ -197,7 +197,7 @@ export const eventConfig = {
       nextStep: "5",
     },
     cancel: {
-      nextStep: "4",
+      nextStep: "5",
       message: "Invalid entry. Please try again.",
       action: "RESET_CODE",
     },
